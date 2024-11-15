@@ -104,16 +104,15 @@ async function Enviar() {
 
         const webhookUrl = 'https://hooks.zapier.com/hooks/catch/18897976/25pp6ep/';
 
-        // Enviar los datos al webhook de Zapier
+        // Enviar los datos al webhook de Zapier con modo no-cors
         const response = await fetch(webhookUrl, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            mode: 'no-cors', // Evita problemas de CORS en el entorno local
             body: JSON.stringify(data)
         });
 
-        if (!response.ok) throw new Error(`Error en la solicitud: ${response.statusText}`);
-
-        alert('¡Suscripción exitosa!');
+        // Nota: En modo no-cors, no puedes verificar el estado de la respuesta
+        alert('¡Suscripción enviada! Procesa los datos en Zapier.');
         closeModal();
     } catch (error) {
         console.error('Error en la suscripción:', error);
