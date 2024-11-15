@@ -104,11 +104,10 @@ async function Enviar() {
 
         const webhookUrl = 'https://hooks.zapier.com/hooks/catch/18897976/25pp6ep/';
 
+        // Enviar los datos al webhook de Zapier
         const response = await fetch(webhookUrl, {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(data)
         });
 
