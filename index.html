@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Formulario de Suscripción</title>
+    <style>
+        /* CSS para el Modal */
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.5); }
+        .modal-content { background-color: white; padding: 20px; margin: 10% auto; width: 80%; max-width: 600px; }
+        .close { float: right; font-size: 1.5em; cursor: pointer; }
+    </style>
+</head>
+<body>
+
+<div class="newsletter newsletter--compact">
+    <form onsubmit="Enviar(); return false;" novalidate>
+        <div class="row">
+            <!-- Campo de Nombre -->
+            <div class="fijo-12 medio-6">
+                <input class="form__field br-10 form__field--text" id="nombre-newsletters" type="text" placeholder="Nombres*" name="nombre" required>
+            </div>
+            
+            <!-- Campo de Email -->
+            <div class="fijo-12 medio-6">
+                <input class="form__field br-10 form__field--text" id="email" type="email" placeholder="Correo electrónico*" name="email" required>
+            </div>
+        </div>
+
+        <!-- Botón de Unirse que abre el popup -->
+        <div class="fijo-12 medio-6">
+            <button type="button" class="form__submit button button--tertiary" onclick="openModal()">¡Únete aquí!</button>
+        </div>
+    </form>
+</div>
+
+<!-- Popup Modal de Autorización de Datos -->
+<div id="modal-terminos" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeModal()">&times;</span>
+        <h3>Autorización para el tratamiento de datos personales</h3>
+        <p>He sido informado que OPERADORA AVICOLA COLOMBIA S.A.S identificada con NIT 891401858 en calidad de RESPONSABLE bajo cualquier modalidad: podrá recolectar, tratar, usar, ceder, transferir o transmitir a terceros o encargados en Colombia o en el exterior los datos personales obtenidos a través de la suscripción realizada...</p>
+
+        <!-- Checkboxes de Aceptación -->
+        <div>
+            <label>
+                <input type="checkbox" id="noticiasyofertas-newsletters"> Acepto Términos y condiciones y autorizo el tratamiento de mis datos personales.
+            </label>
+        </div>
+        <div>
+            <label>
+                <input type="checkbox" id="847780-newsletters"> Acepto la política para la Autorización de datos personales.
+            </label>
+        </div>
+        
+        <!-- Botón de Confirmación en el Modal -->
+        <button onclick="Enviar()">Aceptar y suscribirse</button>
+    </div>
+</div>
+
+<script>
+// Función para abrir el modal
+function openModal() {
+    document.getElementById('modal-terminos').style.display = 'block';
+}
+
+// Función para cerrar el modal
+function closeModal() {
+    document.getElementById('modal-terminos').style.display = 'none';
+}
+
+// Función para enviar los datos al webhook de Zapier
+async function Enviar() {
+    try {
+        // Verifica que todos los campos requeridos estén presentes
+        const nombreField = document.getElementById('nombre-newsletters');
+        const emailField = document.getElementById('email');
+        const aceptaNoticiasField = document.getElementById('noticiasyofertas-newsletters');
+        const aceptaTerminosField = document.getElementById('847780-newsletters');
+
+        if (!nombreField || !emailField || !aceptaNoticiasField || !aceptaTerminosField) {
+            console.error("Uno o más elementos del formulario no se encontraron. Revisa los ID en el HTML.");
+            return;
+        }
+
+        const nombre = nombreField.value;
+        const email = emailField.value;
+        const aceptaNoticias = aceptaNoticiasField.checked ? 'Si' : 'No';
+        const aceptaTerminos = aceptaTerminosField.checked ? 'Si' : 'No';
+        const campaña = "newsletter";
+
+        if (!aceptaNoticiasField.checked || !aceptaTerminosField.checked) {
+            alert("Por favor acepta los términos y condiciones y autoriza el tratamiento de datos.");
+            return;
+        }
+
+        const data = {
+            nombre: nombre,
+            email: email,
+            aceptaNoticias: aceptaNoticias,
+            aceptaTerminos: aceptaTerminos,
+            campaña: campaña
+        };
+
+        const webhookUrl = 'https://hooks.zapier.com/hooks/catch/18897976/25pp6ep/';
+
+        const response = await fetch(webhookUrl, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data)
+        });
+
+        if (!response.ok) throw new Error(`Error en la solicitud: ${response.statusText}`);
+
+        alert('¡Suscripción exitosa!');
+        closeModal();
+    } catch (error) {
+        console.error('Error en la suscripción:', error);
+        alert('Hubo un error. Intenta de nuevo.');
+    }
+}
+</script>
+
+</body>
+</html>
